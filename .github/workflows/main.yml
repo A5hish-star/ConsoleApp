@@ -27,11 +27,14 @@ jobs:
 
       - name: Publish Self-Contained App
         run: dotnet publish --configuration Release --runtime win-x64 --self-contained true -o ./output
-        # Change 'win-x64' to 'linux-x64' or 'osx-x64' based on your target platform
+
+      # Debug: List files in output folder
+      - name: List Output Files
+        run: ls -la ./output || dir ./output # 'ls' for Linux, 'dir' for Windows (works on ubuntu-latest)
 
       - name: Upload Single Executable
         uses: actions/upload-artifact@v4
         with:
           name: MyConsoleApp
-          path: ./output/MyConsoleApp.exe # Adjust to your app's executable name
+          path: ./output/*.exe # Use wildcard to match any .exe in output
           retention-days: 7
