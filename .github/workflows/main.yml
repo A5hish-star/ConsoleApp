@@ -1,45 +1,37 @@
 name: Build and Test
 
-# Trigger the workflow on push events to any branch
 on: [push]
 
 jobs:
   build-and-test:
-    # Run the job on the latest Ubuntu runner
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the repository code
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Set up the .NET SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x' # Adjust to your project's .NET version
+          dotnet-version: '8.0.x' # Adjust to your .NET version
 
-      # Restore dependencies
       - name: Restore Dependencies
         run: dotnet restore
 
-      # Build the project in Release configuration
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      # Run tests (if you have a test project)
       - name: Run Tests
         run: dotnet test --configuration Release --no-build --verbosity normal
-        continue-on-error: true # Optional: Allows continuation if tests fail
+        continue-on-error: true
 
-      # Publish the app (optional, for artifacts)
-      - name: Publish
-        run: dotnet publish --configuration Release -o ./output
+      - name: Publish Self-Contained App
+        run: dotnet publish --configuration Release --runtime win-x64 --self-contained true -o ./output
+        # Change 'win-x64' to 'linux-x64' or 'osx-x64' based on your target platform
 
-      # Upload the built app as an artifact (updated to v4)
-      - name: Upload Artifact
+      - name: Upload Single Executable
         uses: actions/upload-artifact@v4
         with:
           name: MyConsoleApp
-          path: ./output/
-          retention-days: 7 # Optional: How long to keep the artifact (default is 90)
+          path: ./output/MyConsoleApp.exe # Adjust to your app's executable name
+          retention-days: 7
