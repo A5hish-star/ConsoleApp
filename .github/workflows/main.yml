@@ -5,7 +5,7 @@ on: [push]
 
 jobs:
   build-and-test:
-    # Run the job on the latest Ubuntu runner (you can change to windows-latest or macos-latest if needed)
+    # Run the job on the latest Ubuntu runner
     runs-on: ubuntu-latest
 
     steps:
@@ -13,11 +13,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Set up the .NET SDK (specify your version, e.g., 8.0.x)
+      # Set up the .NET SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x' # Adjust this to match your project's .NET version (e.g., 6.0.x, 7.0.x)
+          dotnet-version: '8.0.x' # Adjust to your project's .NET version
 
       # Restore dependencies
       - name: Restore Dependencies
@@ -27,16 +27,19 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      # Run tests (if you have a test project)
+      - name: Run Tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+        continue-on-error: true # Optional: Allows continuation if tests fail
+
+      # Publish the app (optional, for artifacts)
       - name: Publish
         run: dotnet publish --configuration Release -o ./output
-      
+
+      # Upload the built app as an artifact (updated to v4)
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MyConsoleApp
           path: ./output/
-
-      # Run tests (if you have a test project; assumes a test project exists in the solution)
-      - name: Run Tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
-        continue-on-error: true # Optional: Allows the workflow to continue even if tests fail
+          retention-days: 7 # Optional: How long to keep the artifact (default is 90)
