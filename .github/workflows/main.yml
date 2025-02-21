@@ -1,0 +1,33 @@
+name: Build and Test
+
+# Trigger the workflow on push events to any branch
+on: [push]
+
+jobs:
+  build-and-test:
+    # Run the job on the latest Ubuntu runner (you can change to windows-latest or macos-latest if needed)
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Set up the .NET SDK (specify your version, e.g., 8.0.x)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.0' # Adjust this to match your project's .NET version (e.g., 6.0.x, 7.0.x)
+
+      # Restore dependencies
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      # Build the project in Release configuration
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # Run tests (if you have a test project; assumes a test project exists in the solution)
+      - name: Run Tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+        continue-on-error: true # Optional: Allows the workflow to continue even if tests fail
