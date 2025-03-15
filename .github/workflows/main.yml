@@ -1,40 +1,23 @@
 name: Build and Test
 
-on: [push]
+on:
+  workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions tab
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v3
-
+        
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x' # Adjust to your .NET version
-
-      - name: Restore Dependencies
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-
-      - name: Run Tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
-        continue-on-error: true
-
-      - name: Publish Self-Contained App
-        run: dotnet publish --configuration Release --runtime win-x64 --self-contained true -o ./output
-
-      # Debug: List files in output folder
-      - name: List Output Files
-        run: ls -la ./output || dir ./output # 'ls' for Linux, 'dir' for Windows (works on ubuntu-latest)
-
-      - name: Upload Single Executable
-        uses: actions/upload-artifact@v4
-        with:
-          name: MyConsoleApp
-          path: ./output/*.exe # Use wildcard to match any .exe in output
-          retention-days: 7
+          dotnet-version: '6.0.x'
+          
+      - name: Build the project
+        run: dotnet build MyConsoleApp.csproj --configuration Release
+        
+      - name: Run the Console App
+        run: dotnet run --project MyConsoleApp.csproj --configuration Release -- --no-wait
